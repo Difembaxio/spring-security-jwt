@@ -2,18 +2,15 @@ package ru.difembaxio.secutityjwt.service;
 
 import java.util.List;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import ru.difembaxio.secutityjwt.model.User;
+import ru.difembaxio.secutityjwt.dto.userDto.UserDto;
 
 
 public interface UserService {
 
-  UserDetailsService userDetailsService();
+    List<UserDto> getAllUser();
 
-  List<User> getAllUser();
+    String getAuthorized(UserDetails userDetails);
 
-  String getAuthorized(UserDetails userDetails);
-
-  String getCurrentUserLogin(UserDetails userDetails);
+    String getCurrentUserLogin(UserDetails userDetails);
 
 }

@@ -1,14 +1,13 @@
 package ru.difembaxio.secutityjwt.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.difembaxio.secutityjwt.dto.JwtAuthenticationResponse;
-import ru.difembaxio.secutityjwt.dto.RefreshTokenRequest;
-import ru.difembaxio.secutityjwt.dto.SignInRequest;
+import ru.difembaxio.secutityjwt.dto.auth.SignInRequest;
+import ru.difembaxio.secutityjwt.dto.tokenDto.JwtAuthenticationResponse;
+import ru.difembaxio.secutityjwt.dto.tokenDto.RefreshTokenRequest;
 import ru.difembaxio.secutityjwt.service.AuthenticationService;
 
 @RestController
@@ -16,17 +15,16 @@ import ru.difembaxio.secutityjwt.service.AuthenticationService;
 @RequiredArgsConstructor
 public class AuthenticationController {
 
-  private final AuthenticationService authenticationService;
+    private final AuthenticationService authenticationService;
 
-  @PostMapping
-  public ResponseEntity<JwtAuthenticationResponse> signIn(
-      @RequestBody SignInRequest signInRequest) {
-    return ResponseEntity.ok(authenticationService.signIn(signInRequest));
-  }
+    @PostMapping
+    public JwtAuthenticationResponse signIn(@RequestBody SignInRequest signInRequest) {
+        return authenticationService.signIn(signInRequest);
+    }
 
-  @PostMapping("/refresh")
-  public ResponseEntity<JwtAuthenticationResponse> refresh(
-      @RequestBody RefreshTokenRequest refreshTokenRequest) {
-    return ResponseEntity.ok(authenticationService.refreshToken(refreshTokenRequest));
-  }
+
+    @PostMapping("/refresh")
+    public JwtAuthenticationResponse refresh(@RequestBody RefreshTokenRequest refreshTokenRequest) {
+        return authenticationService.refreshToken(refreshTokenRequest);
+    }
 }

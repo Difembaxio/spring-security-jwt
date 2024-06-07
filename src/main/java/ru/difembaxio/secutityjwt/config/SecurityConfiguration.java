@@ -15,50 +15,55 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import ru.difembaxio.secutityjwt.service.UserService;
+import ru.difembaxio.secutityjwt.filter.JwtAuthenticationFilter;
+import ru.difembaxio.secutityjwt.service.CustomUserDetailsService;
+
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-  private final JwtAuthenticationFilter jwtAuthenticationFilter;
-  private final UserService userService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomUserDetailsService customUserDetailsService;
 
-  @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-    http
-        .csrf(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(request -> request
-            .requestMatchers("api/v1/auth/**").permitAll()
-            .requestMatchers("api/v1/auth/refresh").permitAll()
-            .requestMatchers("api/v1/user/register").permitAll()
-            .requestMatchers("api/v1/user/register/admin").permitAll()
-            .requestMatchers("/api/v1/users").hasAuthority("ADMIN")
-            .requestMatchers("api/v1/test/useronly-access").hasAuthority("USER")
-            .anyRequest().authenticated()
-        )
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authenticationProvider(authenticationProvider())
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-    return http.build();
-  }
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(request -> request
+                .requestMatchers("api/v1/auth/**").permitAll()
+                .requestMatchers("api/v1/auth/refresh").permitAll()
+                .requestMatchers("api/v1/user/register").permitAll()
+                .requestMatchers("api/v1/user/register/admin").permitAll()
+                .requestMatchers("/api/v1/users").hasAuthority("ADMIN")
+                .requestMatchers("api/v1/test/useronly-access").hasAuthority("USER")
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(
+                session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
 
-  @Bean
-  public AuthenticationProvider authenticationProvider(){
-    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-    authProvider.setUserDetailsService(userService.userDetailsService());
-    authProvider.setPasswordEncoder(passwordEncoder());
-    return authProvider;
-  }
-  @Bean
-  public PasswordEncoder passwordEncoder(){
-    return new BCryptPasswordEncoder();
-  }
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(customUserDetailsService.userDetailsService());
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
 
-  @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
-    return config.getAuthenticationManager();
-  }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+        throws Exception {
+        return config.getAuthenticationManager();
+    }
 }
 

@@ -9,6 +9,6 @@ import ru.difembaxio.secutityjwt.model.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-  Optional<User> findUserByLogin(String login);
+    Optional<User> findUserByLogin(String login);
 
 }
