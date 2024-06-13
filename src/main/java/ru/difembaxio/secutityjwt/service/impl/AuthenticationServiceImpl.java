@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import ru.difembaxio.secutityjwt.dto.tokenDto.JwtAuthenticationResponse;
 import ru.difembaxio.secutityjwt.dto.tokenDto.RefreshTokenRequest;
 import ru.difembaxio.secutityjwt.dto.auth.SignInRequest;
+import ru.difembaxio.secutityjwt.dto.userDto.RegistrationDto;
 import ru.difembaxio.secutityjwt.dto.userDto.UserDto;
 import ru.difembaxio.secutityjwt.exception.AuthenticationException;
 import ru.difembaxio.secutityjwt.exception.JwtTokenInvalidException;
@@ -36,16 +37,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 
     @Override
-    public UserDto registrationUser(UserDto userDto) {
+    public RegistrationDto registerUser(UserDto userDto) {
         return createUser(userDto, Role.USER);
     }
 
     @Override
-    public UserDto registrationAdmin(UserDto userDto) {
+    public RegistrationDto registerAdmin(UserDto userDto) {
         return createUser(userDto, Role.ADMIN);
     }
 
-    private UserDto createUser(UserDto userDto, Role role) {
+    private RegistrationDto createUser(UserDto userDto, Role role) {
         if (userRepository.findUserByLogin(userDto.getLogin()).isPresent()) {
             throw new UserAlreadyExistsException("Пользователь с таким логином уже существует");
         }
@@ -64,8 +65,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 + "введен не верный логин или пароль");
         }
         var user = userRepository.findUserByLogin(signInRequest.getLogin()).orElseThrow();
-        var jwt = jwtService.generateToken(user);
-        var jwtRefreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
+        var jwt = jwtService.generateAccessToken(user);
+        var jwtRefreshToken = jwtService.generateRefreshToken(user);
 
         JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse();
 
@@ -81,7 +82,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             if (!jwtService.isTokenValid(refreshTokenRequest.getRefreshToken(), user)) {
                 throw new JwtTokenInvalidException("Передан не валидный refreshToken ");
             } else {
-                var jwt = jwtService.generateToken(user);
+                var jwt = jwtService.generateRefreshToken(user);
                 JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse();
                 jwtAuthenticationResponse.setAccessToken(jwt);
                 jwtAuthenticationResponse.setRefreshToken(

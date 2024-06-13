@@ -2,12 +2,14 @@ package ru.difembaxio.secutityjwt.service.impl;
 
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import ru.difembaxio.secutityjwt.dto.userDto.RegistrationDto;
 import ru.difembaxio.secutityjwt.dto.userDto.UserDto;
 import ru.difembaxio.secutityjwt.mappers.UserMapper;
 import ru.difembaxio.secutityjwt.repository.UserRepository;
@@ -21,7 +23,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public List<UserDto> getAllUser() {
+    public List<RegistrationDto> getAllUser() {
         return userRepository.findAll().stream()
             .map(UserMapper::toUserDto)
             .collect(Collectors.toList());
@@ -29,8 +31,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String getAuthorized(UserDetails userDetails) {
-        if (userDetails != null && userDetails.getAuthorities().stream()
-            .anyMatch(a -> a.getAuthority().equals("USER"))) {
+        var isAuthorized = userDetails.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("USER"));
+        if (isAuthorized) {
             return "Авторизован";
         }
         throw new AccessDeniedException("Пользователь не авторизован");
@@ -38,10 +41,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String getCurrentUserLogin(UserDetails userDetails) {
-        if (userDetails != null) {
-            return userDetails.getUsername();
-        }
-        throw new AuthenticationException("Пользователь не авторизован") {
-        };
+        return Optional.ofNullable(userDetails)
+            .map(UserDetails::getUsername)
+            .orElseThrow(() -> new AuthenticationException("Пользователь не авторизован") {
+            });
     }
 }

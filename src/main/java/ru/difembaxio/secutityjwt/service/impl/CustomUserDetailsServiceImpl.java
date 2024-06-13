@@ -1,22 +1,21 @@
 package ru.difembaxio.secutityjwt.service.impl;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.difembaxio.secutityjwt.repository.UserRepository;
-import ru.difembaxio.secutityjwt.service.CustomUserDetailsService;
 
 @Service
 @RequiredArgsConstructor
-public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
+public class CustomUserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
 
     @Override
-    public UserDetailsService userDetailsService() {
-        return username -> userRepository.findUserByLogin(username)
-            .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findUserByLogin(username)
+            .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
     }
-
 }
