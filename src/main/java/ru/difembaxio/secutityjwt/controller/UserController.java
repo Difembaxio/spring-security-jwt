@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.difembaxio.secutityjwt.dto.userDto.RegistrationDto;
 import ru.difembaxio.secutityjwt.dto.userDto.UserDto;
 import ru.difembaxio.secutityjwt.service.AuthenticationService;
 import ru.difembaxio.secutityjwt.service.UserService;
@@ -24,18 +25,18 @@ public class UserController {
 
 
     @PostMapping("/user/register")
-    public UserDto registerUser(@RequestBody UserDto userDto) {
-        return authenticationService.registrationUser(userDto);
+    public RegistrationDto registerUser(@RequestBody UserDto userDto) {
+        return authenticationService.registerUser(userDto);
     }
 
     @PostMapping("/user/register/admin")
-    public UserDto registerAdmin(@RequestBody UserDto userDto) {
-        return authenticationService.registrationAdmin(userDto);
+    public RegistrationDto registerAdmin(@RequestBody UserDto userDto) {
+        return authenticationService.registerAdmin(userDto);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/users")
-    public List<UserDto> getAllUsers() {
+    public List<RegistrationDto> getAllUsers() {
         return userService.getAllUser();
     }
 

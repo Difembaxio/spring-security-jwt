@@ -11,19 +11,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import ru.difembaxio.secutityjwt.service.CustomUserDetailsService;
 import ru.difembaxio.secutityjwt.service.JwtService;
-
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final CustomUserDetailsService customUserDetailsService;
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -38,14 +37,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         jwt = authHeader.substring(7);
-        login = jwtService.extractUserName(jwt);
-
+        login = jwtService.extractUserNameAccess(jwt);
         if (StringUtils.isNotEmpty(login)
             && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = customUserDetailsService.userDetailsService()
-                .loadUserByUsername(login);
-
-            if (jwtService.isTokenValid(jwt, userDetails)) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(login);
+            if (jwtService.isTokenValidAccess(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                     userDetails, null, userDetails.getAuthorities()
                 );
@@ -56,4 +52,3 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
-

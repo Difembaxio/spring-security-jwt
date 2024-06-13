@@ -1,23 +1,27 @@
 package ru.difembaxio.secutityjwt.service;
 
 import io.jsonwebtoken.Claims;
+import java.security.Key;
 import java.util.Map;
 import java.util.function.Function;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public interface JwtService {
 
-    String extractUserName(String token);
+    String extractUserNameAccess(String token);
+    String extractUserNameRefresh(String token);
 
-    String generateToken(UserDetails userDetails);
+    String generateAccessToken(UserDetails userDetails);
 
-    boolean isTokenValid(String token, UserDetails userDetails);
+    String generateRefreshToken(UserDetails userDetails);
 
-    String generateRefreshToken(Map<String, Object> extractClaims, UserDetails userDetails);
+    boolean isTokenValidAccess(String token, UserDetails userDetails);
 
     boolean isTokenExpired(String token);
 
-    Claims extractAllClaims(String token);
+    Claims extractAllClaims(String token,Key secret);
 
-    <T> T extractClaims(String token, Function<Claims, T> claimsResolver);
+    <T> T extractClaimsAccess(String token, Function<Claims, T> claimsResolver);
+    <T> T extractClaimsRefresh(String token, Function<Claims, T> claimsResolver);
+
 }
